@@ -1,5 +1,7 @@
 library authorization_header;
 
+import 'package:uuid/uuid.dart';
+
 import 'client_credentials.dart';
 import 'credentials.dart';
 // import 'package:uuid/uuid.dart';
@@ -18,8 +20,8 @@ class AuthorizationHeader {
 
   // static final _uuid = new Uuid();
 
-  AuthorizationHeader(this._signatureMethod, this._clientCredentials,
-      this._credentials, this._method, this._url, this._additionalParameters);
+  AuthorizationHeader(this._signatureMethod, this._clientCredentials, this._credentials, this._method, this._url,
+      this._additionalParameters);
 
   /// Set Authorization header to request.
   ///
@@ -39,10 +41,9 @@ class AuthorizationHeader {
   String toString() {
     final Map<String, String> params = <String, String>{};
 
-    params['oauth_nonce'] = DateTime.now().millisecondsSinceEpoch.toString();
+    params['oauth_nonce'] = const Uuid().v4();
     params['oauth_signature_method'] = _signatureMethod.name;
-    params['oauth_timestamp'] =
-        (DateTime.now().millisecondsSinceEpoch / 1000).floor().toString();
+    params['oauth_timestamp'] = (DateTime.now().millisecondsSinceEpoch / 1000).floor().toString();
     params['oauth_consumer_key'] = _clientCredentials.token;
     params['oauth_version'] = '1.0';
     if (_credentials != null) {
@@ -77,8 +78,7 @@ class AuthorizationHeader {
 
   /// Create signature in ways referred from
   /// https://dev.twitter.com/docs/auth/creating-signature.
-  String _createSignature(
-      String method, String url, Map<String, String> params) {
+  String _createSignature(String method, String url, Map<String, String> params) {
     // Referred from https://dev.twitter.com/docs/auth/creating-signature
     if (params.isEmpty) {
       throw ArgumentError('params is empty.');
@@ -144,11 +144,8 @@ class AuthorizationHeader {
     // The signing key is simply the percent encoded consumer
     // secret, followed by an ampersand character '&',
     // followed by the percent encoded token secret:
-    final String consumerSecret =
-        Uri.encodeComponent(_clientCredentials.tokenSecret);
-    final String tokenSecret = _credentials != null
-        ? Uri.encodeComponent(_credentials!.tokenSecret)
-        : '';
+    final String consumerSecret = Uri.encodeComponent(_clientCredentials.tokenSecret);
+    final String tokenSecret = _credentials != null ? Uri.encodeComponent(_credentials!.tokenSecret) : '';
     final String signingKey = '$consumerSecret&$tokenSecret';
 
     //
