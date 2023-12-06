@@ -73,7 +73,9 @@ class AuthorizationHeader {
         .replaceAll('*', '%2A')
         .replaceAll("'", '%27')
         .replaceAll('(', '%28')
-        .replaceAll(')', '%29');
+        .replaceAll(')', '%29')
+        // fixes the fact Dart Uri.toString() encodes spaces to `+` (%2B) instead of using %20 like Uri.encodeComponent does
+        .replaceAll('%20', '%2B');
   }
 
   /// Create signature in ways referred from
